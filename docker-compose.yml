@@ -1,26 +1,31 @@
-# Docker Compose
+# docker-compose.yml
 
-# version of docker-compose to use
+# docker-compose version
 version: "3.9"
 
 services: 
   db: 
-    image: "postgres:13" # base image for the database
-    volumes: # we want to say to use the local postgres_data in docker containers postgres path
-      - postgres_data:/var/lib/postgresql/data
-    environment: # environment variables to expose in the docker container
+    container_name: budget_buddy_db
+    image: "postgres:13" 
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment: 
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=budget_buddy_db
+    ports:
+      - "5432:5432"
+      
   web:
-    build: . # we give this the path of the docker image we want to use to build this app
-    command: python manage.py runserver 0.0.0.0:8000 # this is the command to run the service (django command)
-    volumes: # we want to tell the docker container to take our local directory and put it in the code directory used by the docker contianer
+    container_name: budget_buddy_web
+    build: . 
+    command: python manage.py runserver 0.0.0.0:8000 
+    volumes:
       - .:/code
-    ports: # we want to expose our local port 8000 and map it to the docker container's port 8000
+    ports: 
       - "8000:8000"
-    depends_on: # start the db before starting the web server since it depends on it
+    depends_on: 
       - db
 
-volumes: # docker has a rule where you must define named volumes in the top level
-  postgres_data:
+volumes: 
+  data:
